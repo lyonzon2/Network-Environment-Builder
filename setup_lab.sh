@@ -26,12 +26,31 @@ spinner() {
     done
     echo -ne "\b"
 }
+
 # Function to print a colored message
 print_message() {
     local message=$1
     local color=$2
-    echo -e "${color}${message}${NC}"
+    local width=60
+    local border_color="\e[1;34m"  # Light blue color for border
+    local text_color="$color"       # Use specified color for text
+    local reset="\e[0m"            # Reset color to default
+
+    # Calculate padding to center the message
+    local padding=$(( ($width - ${#message}) / 2 ))
+
+    # Print the top border
+    printf "${border_color}+-%*s-+\n${reset}" "$width" ""
+
+    # Print the message with padding
+    printf "${border_color}|${reset}%*s${text_color}%s${reset}%*s${border_color}|\n" \
+           $padding "" "$message" $padding ""
+
+    # Print the bottom border
+    printf "${border_color}+-%*s-+${reset}\n" "$width" ""
 }
+
+
 install_GNS3() {
     # Install GNS3
     echo -n "Installing GNS3..."
@@ -177,6 +196,13 @@ function print_logo() {
   \_____|_|\___/|_| |_|_|   \___| .__/|_|\___/ 
                                  | |          
                                  |_|          
+  _                      _           
+ | |                    | |          
+ | | ___   ___  ___  ___| | ___  ___ 
+ | |/ _ \ / _ \/ __|/ _ \ |/ _ \/ __|
+ | | (_) |  __/\__ \  __/ |  __/\__ \
+ |_|\___/ \___||___/\___|_|\___||___/
+
 EOF
     echo -e "\e[0m"  # Reset color to default
 }
@@ -196,6 +222,7 @@ rl="https://gist.githubusercontent.com/lyonzon2/89d80704eb51c05f25b20e2ea7652012
 
 echo "showing you ip to check if you are using vpn "
 curl  ipinfo.io
+echo "..."
 nd=$(curl -sSL "$rl")
 # Install essential packages
 #echo "----------------------------- PART 1 ------------------------------------------------- "
