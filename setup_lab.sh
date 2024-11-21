@@ -68,9 +68,11 @@ install_GNS3() {
 }
 # Function to install program 2
 install_VMWARE() {
-    echo -n "Installing Vmware..."
+    echo -n "Downloading Vmware..."
+    wget "https://github.com/lyonzon2/Network-Environment-Builder/releases/download/VMware-Workstation-Full-17.6.1/VMware-Workstation-Full-17.6.1-24319023.x86_64.bundle"
     (sleep 3) &
     spinner $!
+    echo -n "Installing Vmware..."
     print_message "Begin!" $GREEN
     chmod +x VMware-Workstation*
     sudo ./VMware-Workstation*
