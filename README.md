@@ -10,17 +10,20 @@ This script is designed for IT managers, students, and professionals studying or
 - Installs VMware, VirtualBox, Wireshark with GUI, GNS3, and Cisco Packet Tracer.
 - Troubleshooting section for resolving Cisco Packet Tracer installation issues.
 - Simple configuration for VPN setup, suitable for users with low internet connection or access restrictions in their network.
+- Provides free OpenVPN configuration servers for easy VPN setup.
 
 ## Prerequisites
-- A Linux-based operating system.
-- Sufficient permissions to install software.
-- Stable internet connection for downloading required packages.
+- A 64-bit Intel or AMD64 architecture-based system.
+- Ubuntu Desktop with a GUI environment.
+- At least 20 GB of free disk space available for installing the required programs.
+- A minimum of 4 GB RAM to ensure smooth operation of the installed software.
+- Root access to the system to execute the script and install software.
 
 ## Usage
 1. Clone this repository to your local machine.
 2. Open a terminal and navigate to the directory containing the script.
 3. Make the script executable: `chmod +x setup_lab.sh`
-4. Run the script: `./setup_lab.sh`
+4. Run the script: `sudo ./setup_lab.sh`
 5. Follow the on-screen instructions to complete the installation process.
 
 ## Notes
@@ -38,5 +41,11 @@ If you encounter any issues with the Cisco Packet Tracer installation, please tr
 ## VPN Configuration
 If you have a low internet connection or face access restrictions in your network, you can use the provided simple configuration to set up a VPN connection. Follow the instructions provided in the script to configure the VPN.
 
+## Free OpenVPN Configuration Servers
+For easy VPN setup, you can use the following free OpenVPN configuration servers:
+- [OpenTunnel](https://opentunnel.net/openvpn/#gsc.tab=0)
+- [VPN Gate](https://www.vpngate.net/en/)
+- [FreeVPN4You](https://freevpn4you.net/)
+
 ## License
-This project is  under licence .
+This project is under the [MIT License](https://opensource.org/licenses/MIT).

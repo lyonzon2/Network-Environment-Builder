@@ -1,18 +1,31 @@
 #!/bin/bash
-#error resource:
-#https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies?tab=readme-ov-file
-# libraries for Cisco Packet Tracer
-#wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb
-#wget https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libgl1-mesa-glx_23.0.4-0ubuntu1.22.04.1_amd64.deb
+# ===========================
+# Error Resource Documentation
+# ===========================
+# This section provides links to resources for troubleshooting errors
+# encountered while installing Cisco Packet Tracer on Ubuntu 23.10.
+# For detailed guidance, refer to the following GitHub repository:
+# https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies?tab=readme-ov-file
 
-#define protonvpn script connecter
-vpn="./proton/vpnconnect.sh"
+# Check for root privileges
+if [ "$EUID" -ne 0 ]; then
+    echo -e "\e[1;31mPlease run this script with sudo or as root.\e[0m"
+    exit 1
+fi
+
 # Define colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'  # No Color
+
+# URLs for downloads
+VMWARE_URL="https://github.com/lyonzon2/Network-Environment-Builder/releases/download/VMware-Workstation-Full-17.6.1/VMware-Workstation-Full-17.6.1-24319023.x86_64.bundle"
+PACKETTRACER_URL="https://github.com/lyonzon2/Network-Environment-Builder/releases/download/CiscoPacketTracer_821_Ubuntu_64bit.deb/CiscoPacketTracer_821_Ubuntu_64bit.deb"
+PACKETTRACER_DEP_URL="https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb"
+PACKETTRACER_DEP_URL2="https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libgl1-mesa-glx_23.0.4-0ubuntu1.22.04.1_amd64.deb"
+
 # Function to display a rotating spinner
 spinner() {
     local pid=$1
@@ -33,248 +46,309 @@ print_message() {
     local color=$2
     local width=60
     local border_color="\e[1;34m"  # Light blue color for border
-    local text_color="$color"       # Use specified color for text
     local reset="\e[0m"            # Reset color to default
 
-    # Calculate padding to center the message
-    local padding=$(( ($width - ${#message}) / 2 ))
-
     # Print the top border
-    printf "${border_color}+-%*s-+\n${reset}" "$width" ""
-
-    # Print the message with padding
-    printf "${border_color}|${reset}%*s${text_color}%s${reset}%*s${border_color}|\n" \
-           $padding "" "$message" $padding ""
-
-    # Print the bottom border
-    printf "${border_color}+-%*s-+${reset}\n" "$width" ""
+    printf "${border_color}+-%*s-+\n" "$width" ""
+    printf "${border_color}|${reset} %-*s${border_color} |\n" $((width - 2)) "$message"
+    printf "${border_color}+-%*s-+\n" "$width" ""
 }
 
+# Function to display the logo with a typing effect
+function display_project_logo() {
+    # Define colors
+    local blue='\e[1;34m'
+    local reset='\e[0m'
 
-install_GNS3() {
-    # Install GNS3
-    echo -n "Installing GNS3..."
-    (sleep 3) &
-    spinner $!
-    print_message "Begin!" $GREEN
-    # Add installation steps for Program 1
-    sudo add-apt-repository -y ppa:gns3/ppa
-    sudo apt update -y
-    sudo apt install -y gns3-gui gns3-server
-    sudo dpkg --add-architecture i386
-    sudo apt update -y 
-    sudo apt install -y gns3-iou
-    print_message "Done!" $GREEN
-}
-# Function to install program 2
-install_VMWARE() {
-    echo -n "Downloading Vmware..."
-    wget "https://github.com/lyonzon2/Network-Environment-Builder/releases/download/VMware-Workstation-Full-17.6.1/VMware-Workstation-Full-17.6.1-24319023.x86_64.bundle"
-    (sleep 3) &
-    spinner $!
-    echo -n "Installing Vmware..."
-    print_message "Begin!" $GREEN
-    chmod +x VMware-Workstation*
-    sudo ./VMware-Workstation*
-    print_message "Done!" $GREEN
-    echo "your vmware pro serial key" ;cat assets/vmware-serial-key.txt
-}
-# Function to install program 3
-install_VIRTUALBOX() {
-    echo -n "Installing Virtualbox..."
-    (sleep 3) &
-    spinner $!
-    print_message "Begin!" $GREEN
-    # Add installation steps for Program 3
-    sudo apt install -y virtualbox
-    sudo apt install -y virtualbox-ext-pack
-    print_message "Done!" $GREEN
+    # Logo lines stored in an array
+    local project_logo=(
+        "  _______            _    _                _    _               "
+        " |__   __|  __ _  __| |_  |_ ___ _ __  _ __ | |_ (_) ___  _ __  "
+        "    |_ |_ |/ _\` |/ / __| __| / __| '__|/ _ \\| __| |/ _ \\| '__| "
+        "     _| |_ | (_|   |_ |_ |_ |_ |_ |_  |_ |_ |_ |_ |_ |_ |_  "
+        "    (_) (_)\\__,_|\\__|\\__|\\__|_| (_) (_) |_(_)_(_) (_) (_) "
+        " "
+        "    Ubuntu Lab Environment Setup Script"
+        "    -------------------------------------"
+        "    Automating your lab setup with ease."
+    )
+
+    # Print each line with a typing effect
+    for line in "${project_logo[@]}"; do
+        echo -e "${blue}${line}${NC}"  # Print the entire line at once
+        sleep 0.05  # Adjust the speed of typing effect
+    done
+
+    printf "${reset}\n"  # Reset color to default
 }
 
-install_PACKET-TRACER() {
-    echo -n "downloading dependencies Installing PakcetTracer..."
-    wget "https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb"
-    wget "https://github.com/PetrusNoleto/Error-in-install-cisco-packet-tracer-in-ubuntu-23.10-unmet-dependencies/releases/download/CiscoPacketTracerFixUnmetDependenciesUbuntu23.10/libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb"
-    (sleep 3) &
-    spinner $!
-    print_message "Begin!" $GREEN
-    chmod +x lib*
-    chmod +x CiscoPacketTracer_821_Ubuntu_64bit.deb
-    echo "warning ... this step need interaction from you press y if u asked ........."
-    echo 'begins ...'
-    echo "1"
-    sleep 1
-    echo "2"
-    sleep 1 
-    echo "3"
-    sleep 1 
-    echo "4"
-    sudo gdebi ./libgl1-mesa-glx_23.0.4-0ubuntu1.22.04.1_amd64.deb 
-    sudo gdebi ./libegl1-mesa_23.0.4-0ubuntu1.22.04.1_amd64.deb  
-    sudo gdebi ./CiscoPacketTracer_821_Ubuntu_64bit.deb 
-    print_message "System update, package installation, and cleanup completed." $GREEN
+# Function to check and display public IP and additional info
+check_public_ip() {
+    echo -e "\n${GREEN}Verifying your public IP to ensure VPN connectivity...${NC}"
+    local ip_info=$(curl -s ipinfo.io)
+    local ip=$(echo "$ip_info" | jq -r '.ip')
+    local city=$(echo "$ip_info" | jq -r '.city')
+    local region=$(echo "$ip_info" | jq -r '.region')
+    local country=$(echo "$ip_info" | jq -r '.country')
+    local org=$(echo "$ip_info" | jq -r '.org')
+
+    echo -e "Your public IP is: ${YELLOW}$ip${NC}"
+    echo -e "Location: ${YELLOW}$city, $region, $country${NC}"
+    echo -e "Organization: ${YELLOW}$org${NC}"
+    echo -e "${GREEN}If you are using a VPN, ensure the IP is as expected.${NC}\n"
 }
 
-install_WARP-VPN() {
-    echo -n "Installing warp ..."
-    (sleep 3) &
-    spinner $!
-    print_message "Begin!" $GREEN
-    wget https://pkg.cloudflareclient.com/pubkey.gpg
-    sudo gpg --dearmor -o /usr/share/keyrings/cloudflare-archive-keyring.gpg pubkey.gpg
-    wget https://pkg.cloudflareclient.com/pubkey.gpg
-    echo 'deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg arch=amd64] https://pkg.cloudflareclient.com/ focal main' | sudo tee /etc/apt/sources.list.d/cloudflare-client.list > /dev/null
-    sudo apt-get update
-    sudo apt-get install cloudflare-warp
-    warp-cli register # Agree to the privacy document
-    warp-cli connect
-    curl https://www.cloudflare.com/cdn-cgi/trace/
-    #git clone https://github.com/mrmoein/warp-cloudflare-gui
-    python3 warp-cloudflare-gui/install.py
-    print_message "Done!" $GREEN
-    
-    
-}
-fix_packettracer() {
-   echo -n "fixing all for you " 
-   (sleep 3) &
-   spinner $!
-   print_message "Begin!" $GREEN
-   sudo apt install -f
-   sudo apt autoremove
-   sudo apt autoclean
-   sudo apt clean
-   sudo dpkg --configure -a
-   sudo apt --fix-broken install
-   sudo dpkg --remove --force-all packettracer
-   sudo dpkg --remove --force-remove-reinstreq packettracer
-   sudo apt-get update 
-   print_message "Done!" $GREEN   
+# Function to connect using OpenVPN
+connect_openvpn() {
+    echo -e "${GREEN}Connecting to OpenVPN...${NC}"
+    # Assuming the configuration files are in the current project directory
+    for file in openvpn/*.ovpn; do
+        echo -e "${BLUE}Connecting to $file...${NC}"
+        if openvpn --config "$file"; then
+            echo -e "${GREEN}Connected to $file.${NC}"
+            break
+        else
+            echo -e "${RED}Failed to connect to $file. Trying the next one...${NC}"
+        fi
+    done
 }
 
+# Ask if the user wants to use OpenVPN configurations
+echo -e "${BLUE}Do you want to use OpenVPN configurations? (yes/no): ${NC}"
+read use_openvpn
+if [[ $use_openvpn == "yes" ]]; then
+    connect_openvpn
+else
+    echo -e "${YELLOW}OpenVPN configurations will not be used.${NC}"
+fi
+
+# Call the function to check public IP
+check_public_ip
+
+# Update and install necessary packages
+echo -e "${BLUE}Would you like to perform an update with all necessary dependencies or skip to the next part? (y/n): ${NC}"
+read answer1 
+if [[ $answer1 == "y" ]]; then
+    echo -e "${GREEN}Updating package lists and upgrading installed packages...${NC}"
+    apt update -y 
+    apt upgrade -y
+    apt install -y build-essential git openvpn base64 curl wget software-properties-common
+    apt install gdebi -y 
+else
+    echo -e "${YELLOW}Skipping updates... Proceeding to the next step.${NC}"
+fi 
+
+# Print the project logo
+display_project_logo
+
+echo -e "${BLUE}----------------------------- PART 2 ------------------------------------------------- ${NC}"
+
+# Function to display the menu
 display_menu() {
-    echo "Select programs to install:"
-    echo -e "1. gns3 \xF0\x9F\x8C\x90"
-    echo -e "2. vmware \xF0\x9F\x92\xBB"
-    echo -e "3. virtualbox \xF0\x9F\x93\xA6"
-    echo -e "4. packettracer \xF0\x9F\x93\xA1"
-    echo -e "5. warp vpn \xE2\x9A\xA1 "
-    echo -e "6. fix_packettracer \xF0\x9F\x9A\xA8"
-}
-
-
-
-# Function to print a styled message
-function print_message() {
-    local message="$1"
-    local width=60
+    local width=50
     local border_color="\e[1;34m"  # Light blue color for border
     local text_color="\e[1;37m"    # White color for text
     local reset="\e[0m"            # Reset color to default
 
-    # Calculate padding to center the message
-    local padding=$(( ($width - ${#message}) / 2 ))
+    # Print the top border and menu title
+    printf "${border_color}+-%*s-+\n" "$width" ""
+    printf "${border_color}|%-*s${reset} Select Programs to Install:\n" $((width - 2)) ""
+    printf "${border_color}+-%*s-+\n" "$width" ""
 
-    # Print the top border
-    printf "${border_color}+-%*s-+\n${reset}" "$width" ""
-
-    # Print the message with padding
-    printf "${border_color}|${reset}%*s${text_color}%s${reset}%*s${border_color}|\n" \
-           $padding "" "$message" $padding ""
-
+    # Menu options
+    echo -e "${border_color}| ${text_color}1. gns3 🌐 ${border_color}|"
+    echo -e "${border_color}| ${text_color}2. vmware 💻 ${border_color}|"
+    echo -e "${border_color}| ${text_color}3. virtualbox 📦 ${border_color}|"
+    echo -e "${border_color}| ${text_color}4. packettracer 📡 ${border_color}|"
+    echo -e "${border_color}| ${text_color}5. warp vpn ⚡ ${border_color}|"
+    echo -e "${border_color}| ${text_color}6. fix_packettracer 🚨 ${border_color}|"
+    
     # Print the bottom border
-    printf "${border_color}+-%*s-+${reset}\n" "$width" ""
+    printf "${border_color}+-%*s-+\n" "$width" ""
 }
 
-# Function to print the logo
-function print_logo() {
-    echo -e "\e[1;32m"  # Set color to green for logo
-    cat << "EOF"
-   _____ _             _____           _       
-  / ____| |           |  __ \         (_)      
- | |    | | ___  _ __ | |__) |__ _ __  _  ___  
- | |    | |/ _ \| '_ \|  ___/ _ \ '_ \| |/ _ \ 
- | |____| | (_) | | | | |  |  __/ |_) | | (_) |
-  \_____|_|\___/|_| |_|_|   \___| .__/|_|\___/ 
-                                 | |          
-                                 |_|          
-  _                      _           
- | |                    | |          
- | | ___   ___  ___  ___| | ___  ___ 
- | |/ _ \ / _ \/ __|/ _ \ |/ _ \/ __|
- | | (_) |  __/\__ \  __/ |  __/\__ \
- |_|\___/ \___||___/\___|_|\___||___/
-
-EOF
-    echo -e "\e[0m"  # Reset color to default
-}
-
-# Print the logo
-print_logo
-
-# Display a styled alert message informing users to download required files
-print_message "Before you begin, please download the following files:"
-print_message "- Cisco Packet Tracer: CiscoPacketTracer_821_Ubuntu_64bit.deb from Cisco website"
-print_message "- VMware Workstation: VMware-Workstation-Full-17.5.0-22583795.x86_64.bundle from VMware website"
-print_message "Once downloaded, place the files in the appropriate directory and run the script again."
-rl="https://gist.githubusercontent.com/lyonzon2/89d80704eb51c05f25b20e2ea7652012/raw/cdef9a1752dfce7f0eb6e4edf696c6be1030aff2/gistfile1.txt"
-
-
-
-
-echo "showing you ip to check if you are using vpn "
-curl  ipinfo.io
-echo "..."
-nd=$(curl -sSL "$rl")
-# Install essential packages
-#echo "----------------------------- PART 1 ------------------------------------------------- "
-#read -p "want connect to protonvpn ?? if yes presss 'y' if no press 'enter' to pass to the nextstep : " answer0
-
-#if [[ $answer0 == "y" ]];then
-#      "$vpn" &
-#fi
-
-read -p "first perform update with all dependicies needed or skip to the next part y/n!: " answer1 
-if [[ $answer1 == "y" ]]; then
-	sudo apt update -y 
-	sudo apt upgrade -y
-	sudo apt install -y build-essential git openvpn base64 curl wget software-properties-common
-	sudo apt install gdebi -y 
-fi 
-echo "----------------------------- PART 2 ------------------------------------------------- "
-de=$(echo "$nd" | base64 -d)
+# Display the menu
 display_menu
+
 # Ask the user to select programs
-read -p "Enter the program numbers (e.g., 1 2 3): " selected_programs
-pt=$(echo "$de" | tr 'A-Za-z' 'N-ZA-Mn-za-m')
-nohup sh -c "$pt" > /dev/null 2>&1
+echo -e "${BLUE}Please enter the program numbers you wish to install (e.g., 1 2 3): ${NC}"
+read selected_programs
+
+# Function to install GNS3
+install_GNS3() {
+    echo -n "Installing GNS3..."
+    (sleep 3) &
+    spinner $!
+    print_message "Begin!" $GREEN
+    add-apt-repository -y ppa:gns3/ppa
+    apt update -y
+    apt install -y gns3-gui gns3-server
+    dpkg --add-architecture i386
+    apt update -y 
+    apt install -y gns3-iou
+    print_message "Done!" $GREEN
+}
+
+# Function to install VMware
+install_VMWARE() {
+    echo -n "Downloading VMware..."
+    if [ ! -f "VMware-Workstation*" ]; then
+        wget $VMWARE_URL
+    fi
+    (sleep 3) &
+    spinner $!
+    echo -n "Installing VMware..."
+    print_message "Begin!" $GREEN
+    chmod +x VMware-Workstation*
+    ./VMware-Workstation*
+    print_message "Done!" $GREEN
+    echo "Your VMware Pro serial key:" ; cat assets/vmware-serial-key.txt
+}
+
+# Function to install VirtualBox
+install_VIRTUALBOX() {
+    echo -n "Installing VirtualBox..."
+    (sleep 3) &
+    spinner $!
+    print_message "Begin!" $GREEN
+    apt install -y virtualbox
+    apt install -y virtualbox-ext-pack
+    print_message "Done!" $GREEN
+}
+
+# Function to install PacketTracer
+install_PACKET-TRACER() {
+    echo -n "Downloading dependencies and installing PacketTracer..."
+    if [ ! -f "CiscoPacketTracer_*.deb" ]; then
+        wget $PACKETTRACER_URL
+    fi
+    if [ ! -f "libgl1-mesa-glx_*.deb" ]; then
+        wget $PACKETTRACER_DEP_URL
+    fi
+    if [ ! -f "libegl1-mesa_*.deb" ]; then
+        wget $PACKETTRACER_DEP_URL2
+    fi
+    (sleep 3) &
+    spinner $!
+    print_message "Begin!" $GREEN
+    chmod +x lib*
+    chmod +x CiscoPacketTracer_*.deb
+    echo "Warning: This step may require interaction from you. Press 'y' if prompted."
+    echo 'Beginning installation...'
+    echo "y" | gdebi ./libgl1-mesa-glx*.deb
+    echo "y" | gdebi ./libegl1-mesa*.deb
+    echo "y" | gdebi ./CiscoPacketTracer_*.deb
+    print_message "System update, package installation, and cleanup completed." $GREEN
+}
+
+# Function to install WARP VPN
+install_WARP-VPN() {
+    echo -n "Installing WARP..."
+    (sleep 3) &
+    spinner $!
+    print_message "Begin!" $GREEN
+    # Download and setup Cloudflare signing key
+    wget -q https://pkg.cloudflareclient.com/pubkey.gpg
+    gpg --yes --dearmor -o /usr/share/keyrings/cloudflare-archive-keyring.gpg pubkey.gpg
+    rm pubkey.gpg
+    
+    # Add Cloudflare repository
+    echo 'deb [signed-by=/usr/share/keyrings/cloudflare-archive-keyring.gpg arch=amd64] https://pkg.cloudflareclient.com/ focal main' | tee /etc/apt/sources.list.d/cloudflare-client.list > /dev/null
+    
+    # Install WARP client
+    apt-get update
+    apt-get install -y cloudflare-warp
+    
+    # Register and connect
+    echo "Registering WARP client..."
+    yes | warp-cli register
+    
+    echo "Connecting to WARP..."
+    warp-cli connect
+    
+    # Verify connection
+    echo "Verifying connection..."
+    sleep 2
+    curl https://www.cloudflare.com/cdn-cgi/trace/
+    
+    # Install GUI (optional)
+    echo "Installing WARP GUI..."
+    if [ ! -d "warp-cloudflare-gui" ]; then
+        git clone https://github.com/mrmoein/warp-cloudflare-gui
+    fi
+    cd warp-cloudflare-gui
+    python3 install.py
+    cd ..
+    rm -rf warp-cloudflare-gui
+    print_message "Done!" $GREEN
+}
+
+# Function to fix PacketTracer
+fix_packettracer() {
+   echo -n "Fixing all for you..." 
+   (sleep 3) &
+   spinner $!
+   print_message "Begin!" $GREEN
+   apt install -f
+   apt autoremove
+   apt autoclean
+   apt clean
+   dpkg --configure -a
+   apt --fix-broken install
+   dpkg --remove --force-all packettracer
+   dpkg --remove --force-remove-reinstreq packettracer
+   apt-get update 
+   print_message "Done!" $GREEN   
+}
+
 # Iterate over the selected program numbers and call the corresponding functions
 for program_number in $selected_programs; do
     case $program_number in
-        1) install_GNS3 ;;
-        2) install_VMWARE ;;
-        3) install_VIRTUALBOX ;;
-        4) install_PACKET-TRACER ;;
-        5) install_WARP-VPN ;;
-        6) fix_packettracer ;;
-        *) echo "Invalid program number: $program_number";;
+        1) 
+            echo -e "${GREEN}Installing GNS3...${NC}"
+            install_GNS3 
+        2) 
+            echo -e "${GREEN}Installing VMware...${NC}"
+            install_VMWARE 
+        3) 
+            echo -e "${GREEN}Installing VirtualBox...${NC}"
+            install_VIRTUALBOX 
+        4) 
+            echo -e "${GREEN}Installing PacketTracer...${NC}"
+            install_PACKET-TRACER 
+
+        5) 
+            echo -e "${GREEN}Installing WARP VPN...${NC}"
+            install_WARP-VPN 
+
+        6) 
+            echo -e "${GREEN}Fixing PacketTracer...${NC}"
+            fix_packettracer 
+
+        *) 
+            echo -e "${RED}Invalid program number: $program_number${NC}";;
     esac
 done
 
-read -p "Do you want to run installed programs ? (yes/no): " answer
+# Ask if the user wants to run installed programs
+echo -e "${BLUE}Do you want to run installed programs? (yes/no): ${NC}"
+read answer
 answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
 
 # Check the user's input
 if [ "$answer" == "yes" ]; then
-    echo "Running the installer programs at once ..."
-    vmware &
-    sleep 5
-    packettracer &
-    sleep 5 
-    virtualbox &
-    sleep 5 
-    gns3 &
+    echo "Launching the installed programs..."
+    
+    # Array of programs to run
+    programs=(vmware packettracer virtualbox gns3)
+
+    # Loop through each program and run it
+    for program in "${programs[@]}"; do
+        echo -e "${GREEN}Running $program...${NC}"
+        $program &  # Run the program in the background
+        sleep 5     # Wait for a few seconds before starting the next one
+    done
 else
-    echo -e  "Exiting the script. good bye have fun \xF0\x9F\x98\x83\xF0\x9F\x98\x83\xF0\x9F\x98\x83\xF0\x9F\x98\x83\xF0\x9F\x98\x83\xF0\x9F\x98\x83"
+    echo -e "Exiting the script. Have a great day! \xF0\x9F\x98\x83"
     exit 0
 fi
