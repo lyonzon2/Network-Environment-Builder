@@ -114,7 +114,7 @@ connect_openvpn() {
 }
 
 # Ask if the user wants to use OpenVPN configurations
-echo -e "${BLUE}Do you want to use OpenVPN configurations? (yes/no): ${NC}"
+echo -e "${BLUE}Do you want to use OpenVPN configurations? (yes/no): ${NC}" 
 read use_openvpn
 if [[ $use_openvpn == "yes" ]]; then
     connect_openvpn
@@ -126,13 +126,13 @@ fi
 check_public_ip
 
 # Update and install necessary packages
-echo -e "${BLUE}Would you like to perform an update with all necessary dependencies or skip to the next part? (y/n): ${NC}"
+echo -e "${BLUE}Would you like to perform an update with all necessary dependencies? (yes/no): ${NC}"
 read answer1 
-if [[ $answer1 == "y" ]]; then
+if [[ $answer1 == "yes" ]]; then
     echo -e "${GREEN}Updating package lists and upgrading installed packages...${NC}"
     apt update -y 
     apt upgrade -y
-    apt install -y build-essential git openvpn base64 curl wget software-properties-common
+    apt install -y build-essential git openvpn base64 curl wget --progress=dot  software-properties-common
     apt install gdebi -y 
 else
     echo -e "${YELLOW}Skipping updates... Proceeding to the next step.${NC}"
@@ -152,7 +152,7 @@ display_menu() {
 
     # Print the top border and menu title
     printf "${border_color}+-%*s-+\n" "$width" ""
-    printf "${border_color}|%-*s${reset} Select Programs to Install:\n" $((width - 2)) ""
+    printf "${border_color}|%-*s${reset} Select Programs to Install:\n" $((width -2)) " "  # Adjusted spacing
     printf "${border_color}+-%*s-+\n" "$width" ""
 
     # Menu options
@@ -193,7 +193,7 @@ install_GNS3() {
 install_VMWARE() {
     echo -n "Downloading VMware..."
     if [ ! -f "VMware-Workstation*" ]; then
-        wget $VMWARE_URL
+        wget --progress=dot  $VMWARE_URL
     fi
     (sleep 3) &
     spinner $!
@@ -220,13 +220,13 @@ install_VIRTUALBOX() {
 install_PACKET-TRACER() {
     echo -n "Downloading dependencies and installing PacketTracer..."
     if [ ! -f "CiscoPacketTracer_*.deb" ]; then
-        wget $PACKETTRACER_URL
+        wget --progress=dot  $PACKETTRACER_URL
     fi
     if [ ! -f "libgl1-mesa-glx_*.deb" ]; then
-        wget $PACKETTRACER_DEP_URL
+        wget --progress=dot  $PACKETTRACER_DEP_URL
     fi
     if [ ! -f "libegl1-mesa_*.deb" ]; then
-        wget $PACKETTRACER_DEP_URL2
+        wget --progress=dot  $PACKETTRACER_DEP_URL2
     fi
     (sleep 3) &
     spinner $!
@@ -247,8 +247,15 @@ install_WARP-VPN() {
     (sleep 3) &
     spinner $!
     print_message "Begin!" $GREEN
+
+    # Install pip3 if not already installed
+    if ! command -v pip3 &> /dev/null; then
+        echo -e "${YELLOW}pip3 not found. Installing...${NC}"
+        apt-get install -y python3-pip
+    fi
+
     # Download and setup Cloudflare signing key
-    wget -q https://pkg.cloudflareclient.com/pubkey.gpg
+    wget --progress=dot -q https://pkg.cloudflareclient.com/pubkey.gpg
     gpg --yes --dearmor -o /usr/share/keyrings/cloudflare-archive-keyring.gpg pubkey.gpg
     rm pubkey.gpg
     
@@ -258,29 +265,40 @@ install_WARP-VPN() {
     # Install WARP client
     apt-get update
     apt-get install -y cloudflare-warp
-    
+
+    # ReRegister 
+    echo "Deleting old WARP client registration..."
+    yes | warp-cli registration delete
+
     # Register and connect
-    echo "Registering WARP client..."
-    yes | warp-cli register
+    echo "Registering new WARP client..."
+    yes | warp-cli registration new
     
     echo "Connecting to WARP..."
     warp-cli connect
     
     # Verify connection
-    echo "Verifying connection..."
+    echo -e "${GREEN}Verifying connection...${NC}"
     sleep 2
-    curl https://www.cloudflare.com/cdn-cgi/trace/
-    
+    connection_info=$(curl -s https://www.cloudflare.com/cdn-cgi/trace/)
+    echo -e "${GREEN}$connection_info${NC}"
+    print_message "Warp has been installed seccussfully" $GREEN
     # Install GUI (optional)
-    echo "Installing WARP GUI..."
-    if [ ! -d "warp-cloudflare-gui" ]; then
-        git clone https://github.com/mrmoein/warp-cloudflare-gui
-    fi
-    cd warp-cloudflare-gui
-    python3 install.py
-    cd ..
-    rm -rf warp-cloudflare-gui
-    print_message "Done!" $GREEN
+   # echo "Installing WARP GUI..."
+   # if [ ! -d "warp-cloudflare-gui" ]; then
+   #     git clone https://github.com/mrmoein/warp-cloudflare-gui
+   # fi
+
+   #cd warp-cloudflare-gui
+   # mkdir -p ~/.config/pip && echo -e "[global]\nbreak-system-packages = true" > ~/.config/pip/pip.conf
+
+    # Change the installation directory for the desktop file
+    #local desktop_file="/usr/share/applications/warp-gui.desktop"
+    #python3 install.py --desktop-file "$desktop_file"  # Pass the desktop file path
+
+    #cd ..
+    #rm -rf warp-cloudflare-gui
+    #print_message "Done!" $GREEN
 }
 
 # Function to fix PacketTracer
@@ -307,26 +325,30 @@ for program_number in $selected_programs; do
         1) 
             echo -e "${GREEN}Installing GNS3...${NC}"
             install_GNS3 
+        ;;
         2) 
             echo -e "${GREEN}Installing VMware...${NC}"
             install_VMWARE 
+        ;;
         3) 
             echo -e "${GREEN}Installing VirtualBox...${NC}"
             install_VIRTUALBOX 
+        ;;
         4) 
             echo -e "${GREEN}Installing PacketTracer...${NC}"
             install_PACKET-TRACER 
-
+        ;;
         5) 
             echo -e "${GREEN}Installing WARP VPN...${NC}"
             install_WARP-VPN 
-
+        ;;
         6) 
             echo -e "${GREEN}Fixing PacketTracer...${NC}"
             fix_packettracer 
-
+        ;;
         *) 
-            echo -e "${RED}Invalid program number: $program_number${NC}";;
+            echo -e "${RED}Invalid program number: $program_number${NC}"
+        ;;
     esac
 done
 

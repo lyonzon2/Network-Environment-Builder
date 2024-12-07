@@ -18,6 +18,20 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'  # No Color
 
+# Function to display a rotating spinner
+spinner() {
+    local pid=$1
+    local delay=0.1
+    local spinstr='|/-\'
+    while ps -p $pid > /dev/null; do
+        for i in ${spinstr}; do
+            echo -ne "\b$i"
+            sleep $delay
+        done
+    done
+    echo -ne "\b"
+}
+
 # Function to print a colored message
 print_message() {
     local message=$1
@@ -38,7 +52,7 @@ uninstall_GNS3() {
     (sleep 3) &
     spinner $!
     print_message "Begin!" $GREEN
-    apt remove --purge -y gns3-gui gns3-server gns3-iou
+    apt remove --purge -y gns3-gui gns3-iou gns3-server
     apt autoremove -y
     print_message "GNS3 uninstalled successfully!" $GREEN
 }
@@ -48,8 +62,23 @@ uninstall_VMWARE() {
     echo -n "Uninstalling VMware..."
     (sleep 3) &
     spinner $!
-    print_message "Begin!" $GREEN
-    apt remove --purge -y vmware*
+    print_message "stop vmware services.." $GREEN
+    systemctl stop vmware
+    systemctl stop vmware-networks
+    systemctl stop vmware-usbarbitrator
+    systemctl stop vmware-hostd
+    (sleep 3) &  
+    print_message  "Remove VMware kernel modules" $GREEN
+    rm -rf /lib/modules/$(uname -r)/misc/vm*
+    depmod -a
+    print_message "Begin Removing..." $GREEN
+    /usr/bin/vmware-installer --uninstall-product vmware-workstation
+    print_message "Remove Leftover Files" $GREEN
+    rm -rf /etc/vmware/
+    rm -rf /usr/lib/vmware/
+    rm -rf /var/lib/vmware/ 
+    rm -rf ~/.vmware/
+    print_message "Clean System Files" $GREEN
     apt autoremove -y
     print_message "VMware uninstalled successfully!" $GREEN
 }
